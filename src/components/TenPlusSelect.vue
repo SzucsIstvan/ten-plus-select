@@ -1,0 +1,158 @@
+<template>
+  <div :class="mainClasses">
+    <div
+      :class="selectContainerClassesCalc"
+      v-if="state === 0"
+    >
+      <select
+        :class="selectClassesCalc"
+        v-model="selectValue"
+      >
+        <option
+          v-for="option in options"
+          :key="option._id"
+          :value="Number(option.value)"
+        >{{option.text}}</option>
+      </select>
+    </div>
+    <div
+      class="input-container"
+      v-if="state === 1"
+    >
+      <input
+        :class="inputClassesCalc"
+        type="number"
+        v-model="inputValue"
+      >
+      <button
+        :class="buttonClassesCalc"
+        @click="onClick"
+      >{{refreshButtonTitle}}</button>
+    </div>
+  </div>
+</template>
+
+<script>
+import defaultOptions from "../common/default-options";
+export default {
+  name: "TenPlusSelect",
+  props: {
+    options: {
+      type: Array,
+      require: true,
+      default: () => defaultOptions
+    },
+    refreshButtonTitle: {
+      type: String,
+      require: false,
+      default: "Update"
+    },
+    classes: {
+      type: Array,
+      require: false,
+      default: () => []
+    },
+    selectContainerClasses: {
+      type: Array,
+      require: false,
+      default: () => []
+    },
+    inputContainerClasses: {
+      type: Array,
+      require: false,
+      default: () => []
+    },
+    inputClasses: {
+      type: Array,
+      require: false,
+      default: () => []
+    },
+    buttonClasses: {
+      type: Array,
+      require: false,
+      default: () => []
+    },
+    selectClasses: {
+      type: Array,
+      require: false,
+      default: () => []
+    }
+  },
+  data() {
+    return {
+      selectValue: 1,
+      inputValue: null,
+      state: 0,
+      max: 0
+    };
+  },
+  watch: {
+    selectValue(newValue) {
+      if (newValue === -1) {
+        this.state = 1;
+        this.inputValue = this.max;
+      }
+      if (newValue > this.max) {
+        this.state = 1;
+        this.inputValue = newValue;
+      } else {
+        this.emitValue();
+      }
+    },
+    options(newValues) {
+      this.max = this.calcMax(newValues);
+    }
+  },
+  computed: {
+    mainClasses() {
+      const defaultClasses = ["ten-plus-select"];
+      return [...defaultClasses, ...this.classes];
+    },
+    selectContainerClassesCalc() {
+      const defaultClasses = ["select-container"];
+      return [...defaultClasses, this.selectContainerClasses];
+    },
+    inputContainerClassesCalc() {
+      const defaultClasses = ["input-container"];
+      return [...defaultClasses, this.inputContainerClasses];
+    },
+    inputClassesCalc() {
+      const defaultClasses = ["input"];
+      return [...defaultClasses, this.inputClasses];
+    },
+    buttonClassesCalc() {
+      const defaultClasses = ["btn"];
+      return [...defaultClasses, ...this.buttonClasses];
+    },
+    selectClassesCalc() {
+      const defaultClasses = ["select"];
+      return [...defaultClasses, ...this.selectClasses];
+    }
+  },
+  methods: {
+    emitValue() {
+      if (this.state === 0) {
+        this.$emit("input", Number(this.selectValue));
+      }
+      if (this.state === 1) {
+        this.$emit("input", Number(this.inputValue));
+      }
+    },
+    onClick() {
+      this.emitValue();
+      if (this.inputValue <= this.max) {
+        this.state = 0;
+        this.selectValue = this.inputValue;
+        this.inputValue = null;
+      }
+    },
+    calcMax(items) {
+      const values = items.map(item => item.value);
+      return Math.max(...values);
+    }
+  },
+  mounted() {
+    this.max = this.calcMax(this.options);
+  }
+};
+</script>
