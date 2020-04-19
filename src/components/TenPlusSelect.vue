@@ -22,6 +22,7 @@
       <input
         :class="inputClassesCalc"
         type="number"
+        @keydown.enter="onClick"
         v-model="inputValue"
       >
       <button
@@ -41,6 +42,11 @@ export default {
       type: Array,
       require: true,
       default: () => defaultOptions
+    },
+    value: {
+      type: Number,
+      requre: true,
+      default: 1
     },
     refreshButtonTitle: {
       type: String,
@@ -80,13 +86,24 @@ export default {
   },
   data() {
     return {
-      selectValue: 1,
-      inputValue: null,
+      selectValue: this.value,
+      inputValue: this.value,
       state: 0,
       max: 0
     };
   },
   watch: {
+    value(newValue) {
+      if (this.state === 0 && newValue <= this.max) {
+        this.selectValue = newValue;
+      }
+      if (this.state === 0 && newValue > this.max) {
+        this.state = 1;
+      }
+      if (this.state === 1) {
+        this.inputValue = newValue;
+      }
+    },
     selectValue(newValue) {
       if (newValue === -1) {
         this.state = 1;
@@ -153,6 +170,12 @@ export default {
   },
   mounted() {
     this.max = this.calcMax(this.options);
+    if (this.inputValue <= this.max) {
+      this.state = 0;
+    }
+    if (this.inputValue >= this.max) {
+      this.state = 1;
+    }
   }
 };
 </script>
