@@ -13,6 +13,10 @@
           :key="option._id"
           :value="Number(option.value)"
         >{{option.text}}</option>
+        <option
+          :key="plusItem._id"
+          :value="plusItem.value"
+        >{{plusItem.text}}</option>
       </select>
     </div>
     <div
@@ -23,11 +27,14 @@
         :class="inputClassesCalc"
         type="number"
         @keydown.enter="onClick"
-        v-model="inputValue"
+        ref="input"
+        v-model.number="inputValue"
       >
       <button
         :class="buttonClassesCalc"
         @click="onClick"
+        v-show="inputValue !== value"
+        :disabled="inputValue === value"
       >{{refreshButtonTitle}}</button>
     </div>
   </div>
@@ -45,8 +52,15 @@ export default {
     },
     value: {
       type: Number,
-      requre: true,
+      require: true,
       default: 1
+    },
+    plusItem: {
+      type: Object,
+      require: true,
+      default: () => {
+        return { _id: 11, value: 11, text: "10+" };
+      }
     },
     refreshButtonTitle: {
       type: String,
@@ -89,7 +103,8 @@ export default {
       selectValue: this.value,
       inputValue: this.value,
       state: 0,
-      max: 0
+      max: 0,
+      min: 0
     };
   },
   watch: {
@@ -97,20 +112,30 @@ export default {
       if (this.state === 0 && newValue <= this.max) {
         this.selectValue = newValue;
       }
+      if (this.state === 1 && newValue <= this.max) {
+        this.selectValue = newValue;
+        this.state = 0;
+      }
       if (this.state === 0 && newValue > this.max) {
         this.state = 1;
+        this.setFocusToInput();
       }
       if (this.state === 1) {
         this.inputValue = newValue;
       }
     },
     selectValue(newValue) {
-      if (newValue === -1) {
-        this.state = 1;
-        this.inputValue = this.max;
+      if (newValue < this.min) {
+        this.selectValue = this.min;
       }
+      // if (newValue === -1) {
+      //   this.state = 1;
+      //   this.setFocusToInput();
+      //   this.inputValue = this.max + 1;
+      // }
       if (newValue > this.max) {
         this.state = 1;
+        this.setFocusToInput();
         this.inputValue = newValue;
       } else {
         this.emitValue();
@@ -118,6 +143,7 @@ export default {
     },
     options(newValues) {
       this.max = this.calcMax(newValues);
+      this.min = this.calcMin(newValues);
     }
   },
   computed: {
@@ -166,10 +192,21 @@ export default {
     calcMax(items) {
       const values = items.map(item => item.value);
       return Math.max(...values);
+    },
+    calcMin(items) {
+      const values = items.map(item => item.value);
+      return Math.min(...values);
+    },
+    setFocusToInput() {
+      this.$nextTick(() => {
+        if (this.$refs.input) this.$refs.input.focus();
+      });
     }
   },
   mounted() {
     this.max = this.calcMax(this.options);
+    this.min = this.calcMin(this.options);
+
     if (this.inputValue <= this.max) {
       this.state = 0;
     }

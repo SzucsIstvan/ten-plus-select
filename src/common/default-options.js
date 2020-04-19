@@ -49,10 +49,5 @@ const defaultOptions = [
     value: 10,
     text: "10",
   },
-  {
-    _id: 11,
-    value: -1,
-    text: "10+",
-  },
 ];
 export default defaultOptions;
