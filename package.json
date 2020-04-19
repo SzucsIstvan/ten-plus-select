@@ -1,0 +1,22 @@
+{
+  "name": "ten-plus-select",
+  "version": "1.0.0",
+  "description": "Select box for 1 to 10 and more",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SzucsIstvan/ten-plus-select.git"
+  },
+  "keywords": [
+    "selectbox"
+  ],
+  "author": "Szűcs István",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SzucsIstvan/ten-plus-select/issues"
+  },
+  "homepage": "https://github.com/SzucsIstvan/ten-plus-select#readme"
+}
